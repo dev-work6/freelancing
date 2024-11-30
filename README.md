@@ -1,136 +1,202 @@
-1. Frontend Architecture
-Framework:
+# DevDaim Professional Development Services
 
-    React.js with Next.js (for Server-Side Rendering and SEO optimization).
+A modern, full-stack web application for professional development services built with Next.js 14, TypeScript, and Tailwind CSS.
 
-Directory Structure
+## 🚀 Features
 
-src/
-├── components/
-│   ├── Layout/         # Reusable layout components (Navbar, Footer, etc.)
-│   ├── Services/       # Components for displaying services
-│   ├── Clients/        # Components for showcasing projects and testimonials
-│   ├── Payment/        # Stripe integration components
-│   ├── Forms/          # Reusable form components (e.g., Contact Form)
-│   └── Shared/         # Reusable UI elements (Buttons, Modals, etc.)
-├── pages/
-│   ├── index.js        # Home Page
-│   ├── about.js        # About Page
-│   ├── services.js     # Services Page
-│   ├── contact.js      # Contact Page
-│   ├── clients.js      # Client/Projects Page
-│   └── api/            # API routes for serverless functions (optional)
-├── styles/
-│   ├── globals.css     # Global styles
-│   ├── tailwind.css    # Tailwind CSS configuration
-├── hooks/              # Custom React hooks (e.g., for fetching data)
-├── utils/              # Helper functions (e.g., API calls)
-├── contexts/           # Context Providers (e.g., for Auth or App State)
-├── public/             # Static assets (images, logos, etc.)
-├── .env.local          # Environment variables for frontend
+- **Modern Tech Stack**: Built with Next.js 14, TypeScript, and Tailwind CSS
+- **Responsive Design**: Fully responsive UI with mobile-first approach
+- **Authentication**: Secure user authentication system
+- **Admin Dashboard**: Comprehensive admin panel for service management
+- **Payment Integration**: Secure payment processing with Stripe
+- **Professional UI**: Shadcn UI components for consistent design
+- **Form Handling**: Type-safe form management with react-hook-form
+- **API Integration**: RESTful API endpoints with proper error handling
+- **Database**: MongoDB integration with Mongoose ODM
 
-Key Features
+## 🛠️ Tech Stack
 
-    API Integration: Fetch data from the backend (e.g., services, projects, testimonials).
-    Responsive Design: Mobile-first approach using Tailwind CSS.
-    Dynamic Routing:
-        /services/[id]: Individual service detail page.
-        /clients/[id]: Detailed case study or testimonial page.
-    State Management:
-        Local state with React Context or Zustand for lightweight management.
-    SEO Optimization:
-        Use Next.js head for metadata.
-        Optimize for search engines with dynamic rendering.
+- **Frontend**:
+  - Next.js 14 (App Router)
+  - TypeScript
+  - Tailwind CSS
+  - Shadcn UI
+  - React Hook Form
+  - Sonner (Toasts)
 
-2. Backend Architecture
-Framework:
+- **Backend**:
+  - Node.js
+  - MongoDB
+  - Mongoose
+  - Express.js
 
-    Node.js with Express.js.
+- **Payment**:
+  - Stripe Integration
 
-Directory Structure
+- **Authentication**:
+  - JWT
+  - HTTP-only cookies
 
-src/
-├── controllers/
-│   ├── authController.js         # Handles authentication logic
-│   ├── serviceController.js      # CRUD for services
-│   ├── projectController.js      # CRUD for client projects
-│   ├── paymentController.js      # Stripe integration logic
-│   └── contactController.js      # Handles contact form submissions
-├── models/
-│   ├── Service.js                # Schema for services
-│   ├── Project.js                # Schema for client projects
-│   ├── Testimonial.js            # Schema for testimonials
-│   └── User.js                   # Schema for admin users
-├── routes/
-│   ├── authRoutes.js             # Routes for authentication
-│   ├── serviceRoutes.js          # Routes for services API
-│   ├── projectRoutes.js          # Routes for client projects API
-│   ├── paymentRoutes.js          # Routes for payments API
-│   └── contactRoutes.js          # Routes for contact form submissions
-├── middlewares/
-│   ├── authMiddleware.js         # JWT authentication middleware
-│   ├── errorHandler.js           # Centralized error handling middleware
-├── utils/
-│   ├── db.js                     # MongoDB connection setup
-│   ├── stripe.js                 # Stripe configuration
-│   ├── email.js                  # Nodemailer setup for emails
-├── config/
-│   ├── default.json              # Default app configuration (e.g., keys, env vars)
-├── app.js                        # Main application entry point
-├── server.js                     # Server setup and initialization
-├── .env                          # Environment variables for backend
+## 📦 Installation
 
-API Endpoints
-1. Authentication
-Method	Endpoint	Description
-POST	/api/auth/login	Login for admin users
-POST	/api/auth/register	Register new admin (optional)
-2. Services
-Method	Endpoint	Description
-GET	/api/services	Fetch all services
-GET	/api/services/:id	Fetch a single service by ID
-POST	/api/services	Add a new service (admin only)
-PUT	/api/services/:id	Update a service (admin only)
-DELETE	/api/services/:id	Delete a service (admin only)
-3. Projects/Clients
-Method	Endpoint	Description
-GET	/api/projects	Fetch all projects
-GET	/api/projects/:id	Fetch a single project by ID
-POST	/api/projects	Add a new project (admin only)
-PUT	/api/projects/:id	Update a project (admin only)
-DELETE	/api/projects/:id	Delete a project (admin only)
-4. Payments (Stripe Integration)
-Method	Endpoint	Description
-POST	/api/payment/checkout	Create a Stripe Checkout session
-5. Contact Form
-Method	Endpoint	Description
-POST	/api/contact	Handle contact form data
-Key Backend Features
+1. Clone the repository:
 
-    Secure Authentication:
-        JWT-based authentication for admin dashboard.
-        Password hashing with bcrypt.
-    Database Design:
-        Services, Projects, and Testimonials collections in MongoDB.
-    Stripe Payment Integration:
-        Secure payment processing using Stripe Checkout API.
-    Scalability:
-        Designed for future additions like blog posts or new service categories.
-    Error Handling:
-        Centralized error handler to manage all API errors gracefully.
+```bash
+git clone https://github.com/DevDaim/devdaim-services.git
+```
+2. Install dependencies:
 
-Data Flow Diagram
-Frontend to Backend:
+```bash
+cd devdaim-services
+npm install
+```
 
-    Frontend: React components make API calls to backend endpoints.
-    Backend:
-        Fetch data from MongoDB.
-        Process payments with Stripe.
-        Send emails with Nodemailer.
+3. Set up environment variables:
 
-Stripe Payment Workflow:
+```bash
+cp .env.example .env.local
+```
 
-    User clicks "Buy Now" on the frontend.
-    Frontend calls the /api/payment/checkout endpoint.
-    Backend creates a Stripe Checkout session and sends the session ID to the frontend.
-    Frontend redirects the user to the Stripe-hosted payment page.
+## 🔧 Configuration
+
+Create a `.env.local` file with the following variables:
+
+```env
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Database
+MONGODB_URI=your_mongodb_uri
+
+# Authentication
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=30d
+
+# Stripe
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+
+# Email
+SMTP_HOST=your_smtp_host
+SMTP_PORT=your_smtp_port
+SMTP_USER=your_smtp_user
+SMTP_PASSWORD=your_smtp_password
+```
+
+## 📁 Project Structure
+
+```
+devdaim-services/
+├── app/
+│   ├── api/            # API routes
+│   ├── (auth)/        # Authentication pages
+│   ├── admin/         # Admin dashboard
+│   └── [...routes]/   # Other app routes
+├── components/        # Reusable components
+├── lib/              # Utility functions
+├── models/           # Database models
+├── public/           # Static assets
+└── styles/           # Global styles
+```
+
+## 🔒 API Routes
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+
+### Services
+- `GET /api/services` - List all services
+- `GET /api/services/:id` - Get service details
+- `POST /api/services` - Create service (Admin)
+- `PUT /api/services/:id` - Update service (Admin)
+- `DELETE /api/services/:id` - Delete service (Admin)
+
+### Payments
+- `POST /api/payments` - Create payment session
+- `GET /api/payments/:id` - Get payment details
+- `POST /api/payments/webhook` - Handle Stripe webhooks
+
+### Contact
+- `POST /api/contact` - Submit contact form
+
+## 💳 Testing
+
+### Stripe Test Cards
+
+| Card Number            |        Scenario            |
+|------------------------|----------------------------|
+| 4242 4242 4242 4242    | Success                    |
+| 4000 0000 0000 0002    | Generic Decline            |
+| 4000 0000 0000 9995    | Insufficient Funds Decline |
+| 4000 0000 0000 9987    | Lost Card Decline          |
+| 4000 0000 0000 9979    | Stolen Card Decline        |
+| 4000 0000 0000 0069    | Expired Card Decline       |
+| 4000 0000 0000 0127    | Incorrect CVC Decline      |
+| 4000 0000 0000 0119    | Processing Error Decline   |
+| 4242 4242 4242 4241    | Incorrect Number Decline   |
+| 4000 0000 0000 6975    | Velocity Limit Decline     |
+
+
+## 🚀 Deployment
+
+1. Build the application:
+```bash
+npm run build
+```
+
+2. Start the production server:
+```bash
+npm start
+```
+
+## 📱 Contact & Support
+
+- **Website**: [daim.is-a.dev](https://daim.is-a.dev)
+- **Email**: daimdev6+freelance+software@gmail.com
+- **WhatsApp**: +91 7889557560
+
+### Business Hours
+Monday - Friday: 9 AM - 6 PM (IST)
+
+## 🔄 Updates & Maintenance
+
+- Regular security updates
+- Weekly feature updates
+- 24/7 monitoring
+- Automated backups
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch:
+```bash
+git checkout -b feature/YourFeature
+```
+3. Commit your changes:
+```bash
+git commit -m 'Add YourFeature'
+```
+4. Push to the branch:
+```bash
+git push origin feature/YourFeature
+```
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/)
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Stripe](https://stripe.com/)
+- [MongoDB](https://www.mongodb.com/)
+
+---
+
+Made with ❤️ by [Daim](https://github.com/devdaim6)
+
