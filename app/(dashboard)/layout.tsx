@@ -7,7 +7,8 @@ import {
   BriefcaseBusiness,
   BarChart3,
   Settings2,
-  BlocksIcon
+  BlocksIcon,
+  MessageCircle
 } from "lucide-react"; 
 
 export default function DashboardLayout({
@@ -33,6 +34,11 @@ export default function DashboardLayout({
       href: "/admin/clients",
       icon: <UserCircleIcon />, 
       label: "Clients",
+    },
+    {
+      href: "/admin/negotiations",
+      icon: <MessageCircle />,
+      label: "Negotiations",
     },
     {
       href: "/admin/queries",
