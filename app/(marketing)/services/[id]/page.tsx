@@ -70,7 +70,7 @@ interface Service {
 export default function ServiceDetailsPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,8 +88,7 @@ export default function ServiceDetailsPage({
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const id = await params;
-        const response = await fetch(`/api/services/${id}`);
+        const response = await fetch(`/api/services/${params.id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch service");
         }
