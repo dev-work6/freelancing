@@ -76,12 +76,8 @@ const baseRoutes = [
     href: "/contact",
   },
   {
-    title: "Dashboard",
+    title: "Admin",
     href: "/admin/dashboard",
-  },
-  {
-    title: "Testimonials",
-    href: "/testimonials",
   },
 ];
 
