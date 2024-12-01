@@ -3,13 +3,14 @@ import Contact from "@/models/contact";
 import connectDB from "@/lib/db/db";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  _: Request,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
+    const id = (await params).id;
     await connectDB();
 
-    const contact = await Contact.findById(params.id)
+    const contact = await Contact.findById(id)
       .select('+replies')
       .lean();
 
@@ -18,7 +19,7 @@ export async function GET(
     }
     // Only update status to read if not already replied
     if (!Array.isArray(contact) && contact.status === "unread") {
-      await Contact.findByIdAndUpdate(params.id, { status: "read" });
+      await Contact.findByIdAndUpdate(id, { status: "read" });
     }
 
     return NextResponse.json(contact, {

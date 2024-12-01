@@ -75,55 +75,60 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (error: any) {
-    if (error.type === "StripeCardError") {
-      let errorMessage = "Payment failed";
-      let errorCode = error.code;
+  } catch (error: unknown) {
+    if (error instanceof Error && 'type' in error && 'code' in error && 'decline_code' in error) {
+      const stripeError = error as Stripe.errors.StripeError;
+      if (stripeError.type === "StripeCardError") {
+        let errorMessage = "Payment failed";
+        const errorCode = stripeError.code;
 
-      switch (error.code) {
-        case "card_declined":
-          switch (error.decline_code) {
-            case "insufficient_funds":
-              errorMessage = "Insufficient funds in the card";
-              break;
-            case "lost_card":
-              errorMessage = "This card has been reported as lost";
-              break;
-            case "stolen_card":
-              errorMessage = "This card has been reported as stolen";
-              break;
-            case "card_velocity_exceeded":
-              errorMessage = "Card velocity limit exceeded";
-              break;
-            default:
-              errorMessage = "Card was declined";
-          }
-          break;
-        case "expired_card":
-          errorMessage = "The card has expired";
-          break;
-        case "incorrect_cvc":
-          errorMessage = "Incorrect CVC code";
-          break;
-        case "processing_error":
-          errorMessage = "An error occurred while processing the card";
-          break;
-        case "incorrect_number":
-          errorMessage = "Invalid card number";
-          break;
-      }
-
-      // Update payment record with error details
-      await Payment.findOneAndUpdate(
-        { stripeSessionId: payment?.stripeSessionId },
-        {
-          paymentStatus: "failed",
-          errorCode: errorCode,
-          errorMessage: errorMessage,
+        switch (stripeError.code) {
+          case "card_declined":
+            switch (stripeError.decline_code) {
+              case "insufficient_funds":
+                errorMessage = "Insufficient funds in the card";
+                break;
+              case "lost_card":
+                errorMessage = "This card has been reported as lost";
+                break;
+              case "stolen_card":
+                errorMessage = "This card has been reported as stolen";
+                break;
+              case "card_velocity_exceeded":
+                errorMessage = "Card velocity limit exceeded";
+                break;
+              default:
+                errorMessage = "Card was declined";
+            }
+            break;
+          case "expired_card":
+            errorMessage = "The card has expired";
+            break;
+          case "incorrect_cvc":
+            errorMessage = "Incorrect CVC code";
+            break;
+          case "processing_error":
+            errorMessage = "An error occurred while processing the card";
+            break;
+          case "incorrect_number":
+            errorMessage = "Invalid card number";
+            break;
         }
-      );
 
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+        // Update payment record with error details
+        if (payment) {
+          await Payment.findOneAndUpdate(
+            { stripeSessionId: payment.stripeSessionId },
+            {
+              paymentStatus: "failed",
+              errorCode: errorCode,
+              errorMessage: errorMessage,
+            }
+          );
+        }
+
+        return NextResponse.json({ error: errorMessage }, { status: 400 });
+      }
     }
 
     return NextResponse.json(
@@ -170,8 +175,12 @@ export async function GET(req: Request): Promise<Response> {
       { status: payment.paymentStatus || "pending" },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error("Payment status check error:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Payment status check error:", error.message);
+    } else {
+      console.error("Payment status check error:", String(error));
+    }
     return NextResponse.json(
       { error: "An error occurred while checking payment status" },
       { status: 500 }

@@ -57,11 +57,20 @@ export async function POST(req: Request): Promise<Response> {
     const emailContent = `
         <div style="max-width: 700px; margin: 0 auto; padding: 40px 20px; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%); padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" alt="Dev Daim Logo" style="width: 180px; margin-bottom: 30px; filter: brightness(0) invert(1);"/>
+            <img src="${
+              process.env.NEXT_PUBLIC_APP_URL
+            }/logo.png" alt="Dev Daim Logo" style="width: 180px; margin-bottom: 30px; filter: brightness(0) invert(1);"/>
             <h2 style="color: #ffffff; font-size: 28px; margin-bottom: 25px; font-weight: 600;">${emailSubject}</h2>
             <div style="background-color: rgba(255,255,255,0.95); padding: 30px; border-radius: 12px; border-left: 6px solid #00ff88; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
               <p style="color: #2c2c2c; line-height: 1.8; font-size: 16px; margin-bottom: 25px;">${message}</p>
-              ${offerAmount ? `<p style="color: #2c2c2c; font-size: 18px; font-weight: 600; margin-bottom: 25px;">Offered Amount: ${formatCurrency(offerAmount, negotiation.currency)}</p>` : ""}
+              ${
+                offerAmount
+                  ? `<p style="color: #2c2c2c; font-size: 18px; font-weight: 600; margin-bottom: 25px;">Offered Amount: ${formatCurrency(
+                      offerAmount,
+                      negotiation.currency
+                    )}</p>`
+                  : ""
+              }
             </div>
           </div>
           <div style="padding: 0 20px;">
@@ -73,20 +82,19 @@ export async function POST(req: Request): Promise<Response> {
           </div>
         </div>
     `;
-
-    const info = await sendMail({
+    await sendMail({
       to: isFromAdmin ? negotiation.email : process.env.ADMIN_EMAIL!,
       subject: emailSubject,
       html: emailContent,
     });
 
     return NextResponse.json(negotiation, { status: 200 });
-  } catch (error: any) {
+  } catch (error: Error | unknown) {
     console.error("Error adding reply:", error);
     return NextResponse.json(
       {
         error: "Failed to add reply",
-        details: error.message,
+        details: error instanceof Error ? error.message : "Unknown error occurred",
       },
       { status: 500 }
     );

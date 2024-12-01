@@ -3,14 +3,15 @@ import connectDB from "@/lib/db/db";
 import Blocklist from "@/models/blocklist";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     await connectDB();
+    const id = (await params).id;
 
     const blockedEmail = await Blocklist.findOne({
-      _id: params.id,
+      _id: id,
       active: true
     });
 
@@ -33,7 +34,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     await connectDB();
@@ -53,7 +54,7 @@ export async function PATCH(
 
     // First check if document exists and is active
     const existingBlock = await Blocklist.findOne({
-      _id: params.id,
+      _id: (await params).id,
       active: true
     });
 
@@ -65,7 +66,7 @@ export async function PATCH(
     }
 
     const updatedBlock = await Blocklist.findByIdAndUpdate(
-      params.id,
+      (await params).id,
       updateData,
       { new: true }
     );

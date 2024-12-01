@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   await connectDB();
   const testimonial = await Testimonial.findById(id);
   if (!testimonial) {
@@ -19,9 +19,9 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   const data = await req.json();
   await connectDB();
   const testimonial = await Testimonial.findByIdAndUpdate(id, data, {
@@ -37,9 +37,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   await connectDB();
   const testimonial = await Testimonial.findByIdAndDelete(id);
   if (!testimonial) {

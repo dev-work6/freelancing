@@ -3,10 +3,10 @@ import connectDB from "@/lib/db/db";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  _: Request,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   await connectDB();
   const service = await Service.findById(id);
   if (!service) {
@@ -19,9 +19,9 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   const data = await req.json();
   await connectDB();
   const service = await Service.findByIdAndUpdate(id, data, { new: true });
@@ -35,9 +35,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const { id } = params;
+  const id = (await params).id;
   await connectDB();
   const service = await Service.findByIdAndDelete(id);
   if (!service) {

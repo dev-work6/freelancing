@@ -20,12 +20,12 @@ export async function GET(): Promise<Response> {
     }
 
     return NextResponse.json(negotiations, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching negotiations:", error);
     return NextResponse.json(
       {
         error: "Failed to fetch negotiations",
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );
@@ -65,12 +65,12 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     return NextResponse.json(negotiation, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating negotiation:", error);
     return NextResponse.json(
       {
         error: "Failed to create negotiation request",
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

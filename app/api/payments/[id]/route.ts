@@ -4,11 +4,12 @@ import Payment from "@/models/payment";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const id = (await params).id;
     await connectDB();
-    const payment = await Payment.findOne({ stripeSessionId: params.id });
+    const payment = await Payment.findOne({ stripeSessionId: id });
 
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
@@ -26,11 +27,12 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const id = (await params).id;
     await connectDB();
-    const payment = await Payment.findByIdAndDelete(params.id);
+    const payment = await Payment.findByIdAndDelete(id);
 
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
@@ -48,14 +50,15 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const updates = await request.json();
+    const { id } = await params;
     await connectDB();
 
     const payment = await Payment.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: updates },
       { new: true, runValidators: true }
     );

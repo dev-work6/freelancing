@@ -71,14 +71,14 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     return NextResponse.json(negotiation, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error finalizing negotiation:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to finalize negotiation",
-        details: error.message 
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     );
   }
-} 
+}

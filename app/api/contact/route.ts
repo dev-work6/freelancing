@@ -41,7 +41,7 @@ export async function GET(req: Request): Promise<Response> {
     const skip = (page - 1) * limit;
 
     // Filtering
-    const filterParams: any = {};
+    const filterParams: Record<string, unknown> = {};
     if (searchParams.get("name")) {
       filterParams.name = { $regex: searchParams.get("name"), $options: "i" };
     }
@@ -55,7 +55,6 @@ export async function GET(req: Request): Promise<Response> {
     // Sorting
     const sortField = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("order") === "asc" ? 1 : -1;
-    const sortOptions = { [sortField]: sortOrder };
 
     await connectDB();
 
