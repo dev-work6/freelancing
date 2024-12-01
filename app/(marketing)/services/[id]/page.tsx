@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +70,7 @@ interface Service {
 export default function ServiceDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +88,8 @@ export default function ServiceDetailsPage({
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const response = await fetch(`/api/services/${params.id}`);
+        const id = await params;
+        const response = await fetch(`/api/services/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch service");
         }
@@ -101,7 +103,7 @@ export default function ServiceDetailsPage({
     };
 
     fetchService();
-  }, [params.id]);
+  }, [params]);
 
   const handleNegotiateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,7 +134,11 @@ export default function ServiceDetailsPage({
         throw new Error("Failed to send negotiation request");
       }
     } catch (error) {
-      alert("Failed to send negotiation request. Please try again later.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      alert(
+        `Failed to send negotiation request. Please try again later. ${errorMessage}`
+      );
     }
   };
 
@@ -286,7 +292,7 @@ export default function ServiceDetailsPage({
                 </div>
                 {!service.pricing.customQuote && (
                   <Button
-                    variant="secondary" 
+                    variant="secondary"
                     className="self-start px-4 py-2 text-base"
                     onClick={() => setNegotiateModalOpen(true)}
                   >
@@ -298,12 +304,16 @@ export default function ServiceDetailsPage({
           </Card>
 
           {/* Negotiate Modal */}
-          <Dialog open={negotiateModalOpen} onOpenChange={setNegotiateModalOpen}>
+          <Dialog
+            open={negotiateModalOpen}
+            onOpenChange={setNegotiateModalOpen}
+          >
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Negotiate Price</DialogTitle>
                 <DialogDescription>
-                  Fill out the form below to start a negotiation for {service.title}
+                  Fill out the form below to start a negotiation for{" "}
+                  {service.title}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleNegotiateSubmit} className="space-y-4">
@@ -312,7 +322,12 @@ export default function ServiceDetailsPage({
                   <Input
                     id="name"
                     value={negotiateForm.name}
-                    onChange={(e) => setNegotiateForm({...negotiateForm, name: e.target.value})}
+                    onChange={(e) =>
+                      setNegotiateForm({
+                        ...negotiateForm,
+                        name: e.target.value,
+                      })
+                    }
                     required
                   />
                 </div>
@@ -322,7 +337,12 @@ export default function ServiceDetailsPage({
                     id="email"
                     type="email"
                     value={negotiateForm.email}
-                    onChange={(e) => setNegotiateForm({...negotiateForm, email: e.target.value})}
+                    onChange={(e) =>
+                      setNegotiateForm({
+                        ...negotiateForm,
+                        email: e.target.value,
+                      })
+                    }
                     required
                   />
                 </div>
@@ -332,7 +352,12 @@ export default function ServiceDetailsPage({
                     id="phone"
                     type="tel"
                     value={negotiateForm.phone}
-                    onChange={(e) => setNegotiateForm({...negotiateForm, phone: e.target.value})}
+                    onChange={(e) =>
+                      setNegotiateForm({
+                        ...negotiateForm,
+                        phone: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -342,7 +367,12 @@ export default function ServiceDetailsPage({
                       id="budget"
                       type="number"
                       value={negotiateForm.budget}
-                      onChange={(e) => setNegotiateForm({...negotiateForm, budget: e.target.value})}
+                      onChange={(e) =>
+                        setNegotiateForm({
+                          ...negotiateForm,
+                          budget: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -352,7 +382,12 @@ export default function ServiceDetailsPage({
                       id="currency"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={negotiateForm.currency}
-                      onChange={(e) => setNegotiateForm({...negotiateForm, currency: e.target.value})}
+                      onChange={(e) =>
+                        setNegotiateForm({
+                          ...negotiateForm,
+                          currency: e.target.value,
+                        })
+                      }
                       required
                     >
                       <option value="">Select Currency</option>
@@ -369,7 +404,12 @@ export default function ServiceDetailsPage({
                   <Textarea
                     id="message"
                     value={negotiateForm.message}
-                    onChange={(e) => setNegotiateForm({...negotiateForm, message: e.target.value})}
+                    onChange={(e) =>
+                      setNegotiateForm({
+                        ...negotiateForm,
+                        message: e.target.value,
+                      })
+                    }
                     placeholder="Tell us about your requirements and why you'd like to negotiate the price..."
                     required
                   />
