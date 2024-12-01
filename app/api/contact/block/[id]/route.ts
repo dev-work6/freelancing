@@ -23,8 +23,12 @@ export async function GET(
     }
 
     return NextResponse.json(blockedEmail, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching blocked email:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching blocked email:", error.message);
+    } else {
+      console.error("Error fetching blocked email:", error);
+    }
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
