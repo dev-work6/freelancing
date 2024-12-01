@@ -26,8 +26,12 @@ export default function Login() {
       await login({ email, password });
       router.push("/dashboard");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred during login");
+      }
     } finally {
       setLoading(false);
     }
@@ -44,7 +48,7 @@ export default function Login() {
             Sign in to your account
           </h2>
           <p className="text-center text-muted-foreground">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href="/signup"
               className="font-medium text-primary hover:underline"
