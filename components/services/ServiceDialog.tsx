@@ -148,7 +148,7 @@ export default function ServiceDialog({
     }
   }, [service]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, data: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, data: Service) => {
     e.preventDefault();
 
     // Validate description lengths
@@ -164,7 +164,7 @@ export default function ServiceDialog({
     const serviceData = {
       ...data,
       pricing: {
-        basePrice: parseFloat(data.pricing.basePrice),
+        basePrice: data.pricing.basePrice.toString(),
         currency: data.pricing.currency,
         billingCycle: data.pricing.billingCycle,
         customQuote: data.pricing.customQuote || false
@@ -239,18 +239,18 @@ export default function ServiceDialog({
           <div>
             <Label htmlFor="category">Categories</Label>
             <div className="flex flex-wrap gap-2">
-              {[
+              {([
                 "Web Development",
-                "Mobile Development",
+                "Mobile Development", 
                 "Cloud Services",
                 "DevOps",
-                "Consulting", 
-                "Support",
+                "Consulting",
+                "Support", 
                 "Other",
                 "UI/UX Design",
-                "API Development",
+                "API Development", 
                 "Database Design",
-                "System Architecture", 
+                "System Architecture",
                 "Security Services",
                 "Testing & QA",
                 "AI/ML Development",
@@ -265,26 +265,26 @@ export default function ServiceDialog({
                 "Email Server Setup",
                 "Domain Management",
                 "Web Hosting",
-                "SSL Certificates",
+                "SSL Certificates", 
                 "DNS Management",
                 "Server Administration",
                 "Backup Solutions",
                 "Load Balancing",
                 "CDN Setup",
                 "Database Administration"
-              ].map((category) => (
-                <div key={category} className="flex items-center space-x-2">
+              ] as const).map((cat) => (
+                <div key={cat} className="flex items-center space-x-2">
                   <Checkbox
-                    id={category}
-                    checked={formData.category?.includes(category as any)}
+                    id={cat}
+                    checked={formData.category?.includes(cat)}
                     onCheckedChange={(checked) => {
                       const newCategories = checked
-                        ? [...(formData.category || []), category] as Array<"Web Development" | "Mobile Development" | "Cloud Services" | "DevOps" | "Consulting" | "Support" | "Other" | "UI/UX Design" | "API Development" | "Database Design" | "System Architecture" | "Security Services" | "Testing & QA" | "AI/ML Development" | "Blockchain Development" | "IoT Solutions" | "E-commerce Development" | "CMS Development" | "Technical Writing" | "Code Review" | "Performance Optimization" | "Legacy System Migration" | "Email Server Setup" | "Domain Management" | "Web Hosting" | "SSL Certificates" | "DNS Management" | "Server Administration" | "Backup Solutions" | "Load Balancing" | "CDN Setup" | "Database Administration">
-                        : formData.category?.filter((c) => c !== category) || [];
+                        ? [...(formData.category || []), cat] 
+                        : formData.category?.filter((c) => c !== cat) || [];
                       setFormData({ ...formData, category: newCategories });
                     }}
                   />
-                  <Label htmlFor={category}>{category}</Label>
+                  <Label htmlFor={cat}>{cat}</Label>
                 </div>
               ))}
             </div>
