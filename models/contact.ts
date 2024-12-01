@@ -17,9 +17,20 @@ const contactSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["unread", "read"],
+      enum: ["unread", "read", "replied"],
       default: "unread",
     },
+    replies: [{
+      message: {
+        type: String,
+        required: true
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
