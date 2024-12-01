@@ -2,8 +2,17 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default function PaymentFailed() {
+  return (
+    <Suspense>
+      <PaymentFailedContent />
+    </Suspense>
+  );
+}
+
+function PaymentFailedContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error') || 'Payment could not be processed';
 
@@ -52,4 +61,4 @@ export default function PaymentFailed() {
       </div>
     </div>
   );
-} 
+}

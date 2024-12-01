@@ -1,11 +1,41 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function PaymentSuccess() {
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  return (
+    <Suspense>
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}
+
+function PaymentSuccessContent() {
+  const [paymentDetails, setPaymentDetails] = useState<{
+    _id: string;
+    amount: number;
+    paymentStatus: string;
+    stripeSessionId: string;
+    customerName: string;
+    customerAddress: string;
+    serviceId: string;
+    currency: string;
+    paymentMethod: string;
+    metadata: Map<string, string>;
+    errorCode?: string;
+    errorMessage?: string;
+    shipping?: {
+      name?: string;
+      address?: {
+        line1?: string;
+        country?: string;
+      }
+    };
+    createdAt: string;
+    updatedAt: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -110,7 +140,7 @@ export default function PaymentSuccess() {
                       <span className="text-gray-600">Status:</span>
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          paymentDetails.paymentStatus === "success"
+                          paymentDetails.paymentStatus === "completed"
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
