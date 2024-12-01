@@ -17,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { useParams } from "next/navigation";
 
 interface Service {
   _id: string;
@@ -67,11 +68,8 @@ interface Service {
   };
 }
 
-export default function ServiceDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ServiceDetailsPage() {
+  const params = useParams();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
