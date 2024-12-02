@@ -12,9 +12,9 @@ export async function POST(req: Request): Promise<Response> {
     const blockStatus = await isBlocked({ email: data.email });
     if (blockStatus.blocked) {
       return NextResponse.json(
-        { 
+        {
           error: "Unable to process your request",
-          message: "Your email has been blocked from submitting inquiries"
+          message: "Your email has been blocked from submitting inquiries",
         },
         { status: 403 }
       );
@@ -80,9 +80,6 @@ export async function GET(req: Request): Promise<Response> {
       },
       {
         status: 200,
-        headers: {
-          "Cache-Control": "public, max-age=10",
-        },
       }
     );
   } catch (error) {
