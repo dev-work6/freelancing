@@ -26,7 +26,12 @@ export async function POST(req: Request) {
     });
 
     // Generate token
-    const token = signToken({ userId: user._id });
+    const token = signToken({ 
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
 
     // Create response with user data
     const response = NextResponse.json({
