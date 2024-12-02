@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { getToken } from "@/lib/auth/token";
+import { Loader } from "@/components/ui/Loader";
 
 interface Reply {
   _id: string;
@@ -57,10 +58,11 @@ export default function HourlyQueries() {
       const response = await fetch("/api/services/hourly");
       const data = await response.json();
       setServices(data);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch services";
       toast({
-        title: "Error",
-        description: "Failed to fetch services",
+        title: "Error", 
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -101,17 +103,19 @@ export default function HourlyQueries() {
         title: "Success",
         description: "Reply sent successfully",
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to send reply";
       toast({
         title: "Error",
-        description: "Failed to send reply",
+        description: errorMessage,
         variant: "destructive",
       });
+      console.error("Error sending reply:", error);
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader text="Loading hourly queries..." />;
   }
 
   return (
