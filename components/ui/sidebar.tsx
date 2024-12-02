@@ -3,11 +3,18 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Link, { LinkProps } from "next/link";
 import React, { createContext, useContext, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+
+interface SubLink {
+  href: string;
+  label: string;
+}
 
 interface Links {
   label: string;
   href: string;
   icon: React.JSX.Element | React.ReactNode;
+  subLinks?: SubLink[];
 }
 
 interface SidebarContextProps {
@@ -133,25 +140,58 @@ export const SidebarLink = ({
   props?: LinkProps;
 }) => {
   const { open, animate } = useSidebar();
+  const [showSubLinks, setShowSubLinks] = useState(false);
+
   return (
-    <Link
-      href={link.href}
-      className={cn(
-        "flex items-center justify-center md:justify-start gap-2 group/sidebar py-2",
-        className
+    <div className="relative">
+      <div className="flex items-center">
+        <Link
+          href={link.href}
+          className={cn(
+            "flex items-center justify-center md:justify-start gap-2 group/sidebar py-2 flex-grow",
+            className
+          )}
+          {...props}
+        >
+          {link.icon}
+          <motion.span
+            animate={{
+              display: animate ? (open ? "inline-block" : "none") : "inline-block",
+              opacity: animate ? (open ? 1 : 0) : 1,
+            }}
+            className="hidden md:inline-block text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre !p-0 !m-0"
+          >
+            {link.label}
+          </motion.span>
+        </Link>
+        
+        {link.subLinks && open && (
+          <button
+            onClick={() => setShowSubLinks(!showSubLinks)}
+            className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-full transition-colors"
+          >
+            {showSubLinks ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {link.subLinks && showSubLinks && open && (
+        <div className="pl-8 mt-1">
+          {link.subLinks.map((subLink) => (
+            <Link
+              key={subLink.href}
+              href={subLink.href}
+              className="flex items-center py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:translate-x-1 transition duration-150"
+            >
+              {subLink.label}
+            </Link>
+          ))}
+        </div>
       )}
-      {...props}
-    >
-      {link.icon}
-      <motion.span
-        animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
-          opacity: animate ? (open ? 1 : 0) : 1,
-        }}
-        className="hidden md:inline-block text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre !p-0 !m-0"
-      >
-        {link.label}
-      </motion.span>
-    </Link>
+    </div>
   );
 };
