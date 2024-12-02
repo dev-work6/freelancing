@@ -8,8 +8,8 @@ import {
   BarChart3,
   Settings2,
   BlocksIcon,
-  MessageCircle
-} from "lucide-react"; 
+  MessageCircle,
+} from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -22,37 +22,45 @@ export default function DashboardLayout({
   const sidebarLinks = [
     {
       href: "/admin/dashboard",
-      icon: <HomeIcon />,  
+      icon: <HomeIcon />,
       label: "Dashboard",
     },
     {
       href: "/admin/services",
-      icon: <BriefcaseBusiness />, 
+      icon: <BriefcaseBusiness />,
       label: "Services",
+      subLinks: [
+        {
+          href: "/admin/services/hourly-queries",
+          label: "Hourly Services",
+        },
+      ],
     },
     {
       href: "/admin/clients",
-      icon: <UserCircleIcon />, 
+      icon: <UserCircleIcon />,
       label: "Clients",
     },
-    {
-      href: "/admin/negotiations",
-      icon: <MessageCircle />,
-      label: "Negotiations",
-    },
+
     {
       href: "/admin/queries",
       icon: <BarChart3 />,
       label: "Queries",
+      subLinks: [
+        {
+          href: "/admin/negotiations",
+          label: "Negotiations",
+        },
+      ],
     },
     {
       href: "/admin/payments",
-      icon: <Settings2 />, 
+      icon: <Settings2 />,
       label: "Payments",
     },
     {
       href: "/admin/blocklist",
-      icon: <BlocksIcon />, 
+      icon: <BlocksIcon />,
       label: "Blocklist",
     },
   ];
@@ -68,7 +76,7 @@ export default function DashboardLayout({
           </div>
         </SidebarBody>
       </Sidebar>
-      
+
       {/* Add margin-left for mobile view */}
       <div className="flex-1 p-8 md:ml-0 ml-[1.8rem]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
