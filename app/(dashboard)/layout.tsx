@@ -1,15 +1,14 @@
 "use client";
-import React, { useState } from "react";
-import { Sidebar, SidebarLink, SidebarBody } from "@/components/ui/sidebar"; // Import Sidebar, SidebarLink, and SidebarBody
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar"; // Import Sidebar, SidebarLink, and SidebarBody
 import {
-  HomeIcon,
-  UserCircleIcon,
-  BriefcaseBusiness,
   BarChart3,
-  Settings2,
   BlocksIcon,
-  MessageCircle,
+  BriefcaseBusiness,
+  HomeIcon,
+  Settings2,
+  UserCircleIcon,
 } from "lucide-react";
+import React, { useState } from "react";
 
 export default function DashboardLayout({
   children,
