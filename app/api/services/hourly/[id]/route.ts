@@ -19,9 +19,11 @@ export async function GET(
     }
 
     return NextResponse.json(service);
-  } catch (error) {
+  } catch (err: unknown ) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to fetch hourly service";
+    console.error("Error fetching hourly service:", err);
     return NextResponse.json(
-      { error: "Failed to fetch hourly service" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -49,9 +51,10 @@ export async function PATCH(
     }
 
     return NextResponse.json(service);
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to update hourly service";
     return NextResponse.json(
-      { error: error.message || "Failed to update hourly service" },
+      { error: errorMessage },
       { status: 400 }
     );
   }
@@ -76,9 +79,11 @@ export async function DELETE(
     return NextResponse.json({
       message: "Hourly service deleted successfully",
     });
-  } catch (error) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to delete hourly service";
+    console.error("Error deleting hourly service:", err);
     return NextResponse.json(
-      { error: "Failed to delete hourly service" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

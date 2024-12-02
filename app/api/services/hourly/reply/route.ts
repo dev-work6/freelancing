@@ -105,10 +105,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(service, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("POST reply error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to add reply" },
+      { error: error instanceof Error ? error.message : "Failed to add reply" },
       { status: 400 }
     );
   }

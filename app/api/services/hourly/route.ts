@@ -9,18 +9,27 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     
     // Build query filters
-    const filters: any = { status: "available" };
-    
-    if (searchParams.get('skill')) {
-      filters.skills = { $in: [searchParams.get('skill')] };
+    interface QueryFilters {
+      status: string;
+      skills?: { $in: string[] };
+      hourlyRate?: { $gte?: number; $lte?: number };
     }
     
-    if (searchParams.get('minRate')) {
-      filters.hourlyRate = { $gte: parseInt(searchParams.get('minRate')!) };
+    const filters: QueryFilters = { status: "available" };
+    
+    const skill = searchParams.get('skill');
+    if (skill) {
+      filters.skills = { $in: [skill] };
     }
     
-    if (searchParams.get('maxRate')) {
-      filters.hourlyRate = { ...filters.hourlyRate, $lte: parseInt(searchParams.get('maxRate')!) };
+    const minRate = searchParams.get('minRate');
+    if (minRate) {
+      filters.hourlyRate = { $gte: parseInt(minRate) };
+    }
+    
+    const maxRate = searchParams.get('maxRate');
+    if (maxRate) {
+      filters.hourlyRate = { ...filters.hourlyRate, $lte: parseInt(maxRate) };
     }
 
     const services = await HourlyService.find(filters)
@@ -71,10 +80,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(service, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POST hourly service error:', error);
     return NextResponse.json(
-      { error: error.message || "Failed to create hourly service" },
+      { error: error instanceof Error ? error.message : "Failed to create hourly service" },
       { status: 400 }
     );
   }
