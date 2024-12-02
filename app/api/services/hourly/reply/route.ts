@@ -1,76 +1,85 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/db/db";
-import Negotiation from "@/models/negotitate";
+import dbConnect from "@/lib/db/db";
+import HourlyService from "@/models/hourlyService";
+import { verifyToken } from "@/lib/auth/jwt";
 import { sendMail } from "@/lib/mail";
 
-export async function POST(req: Request): Promise<Response> {
+export async function POST(request: Request) {
   try {
-    const data = await req.json();
-    const { negotiationId, message, offerAmount, isFromAdmin } = data;
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!negotiationId || !message) {
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyToken(token);
+    if (!decoded || typeof decoded === 'string') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    await dbConnect();
+    const body = await request.json();
+    const { serviceId, message, offerAmount } = body;
+
+    if (!serviceId || !message) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Service ID and message are required" },
         { status: 400 }
       );
     }
 
-    await connectDB();
+    const service = await HourlyService.findById(serviceId).populate('userId', 'name email');
 
-    // Find the negotiation
-    const negotiation = await Negotiation.findById(negotiationId);
-    if (!negotiation) {
+    if (!service) {
       return NextResponse.json(
-        { error: "Negotiation not found" },
+        { error: "Hourly service not found" },
         { status: 404 }
       );
     }
 
-    // Format currency for email
-    const formatCurrency = (amount: number, currency: string) => {
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: currency,
-      }).format(amount);
-    };
+    // Check if user is admin
+    const isAdmin = decoded.role === "admin";
 
-    // Add reply to the negotiation
-    negotiation.replies.push({
+    // Prevent duplicate replies in quick succession
+    const recentReply = service.replies.find(
+      (reply: { userId: { toString: () => string }; createdAt: Date }) =>
+        reply.userId.toString() === decoded.userId &&
+        new Date().getTime() - new Date(reply.createdAt).getTime() < 60000 // 1 minute
+    );
+
+    if (recentReply) {
+      return NextResponse.json(
+        { error: "Please wait before sending another reply" },
+        { status: 429 }
+      );
+    }
+
+    service.replies.push({
       message,
       offerAmount,
-      isFromAdmin,
+      isFromAdmin: isAdmin,
+      userId: decoded.userId,
       createdAt: new Date(),
     });
 
-    // Update status to negotiating if it was pending
-    if (negotiation.status === "pending") {
-      negotiation.status = "negotiating";
-    }
+    await service.save();
 
-    await negotiation.save();
+    // Populate user information before returning
+    await service.populate("replies.userId", "name email");
 
     // Send email notification
-    const emailSubject = isFromAdmin
-      ? "Response to Your Service Negotiation"
-      : "New Negotiation Message";
+    const emailSubject = isAdmin
+      ? "Response to Your Service Request"
+      : "New Service Message";
 
     const emailContent = `
         <div style="max-width: 700px; margin: 0 auto; padding: 40px 20px; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%); padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <img src="${
-              process.env.NEXT_PUBLIC_APP_URL
-            }/logo.png" alt="Dev Daim Logo" style="width: 180px; margin-bottom: 30px; filter: brightness(0) invert(1);"/>
+            <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" alt="Dev Daim Logo" style="width: 180px; margin-bottom: 30px; filter: brightness(0) invert(1);"/>
             <h2 style="color: #ffffff; font-size: 28px; margin-bottom: 25px; font-weight: 600;">${emailSubject}</h2>
             <div style="background-color: rgba(255,255,255,0.95); padding: 30px; border-radius: 12px; border-left: 6px solid #00ff88; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
               <p style="color: #2c2c2c; line-height: 1.8; font-size: 16px; margin-bottom: 25px;">${message}</p>
-              ${
-                offerAmount
-                  ? `<p style="color: #2c2c2c; font-size: 18px; font-weight: 600; margin-bottom: 25px;">Offered Amount: ${formatCurrency(
-                      offerAmount,
-                      negotiation.currency
-                    )}</p>`
-                  : ""
-              }
+              ${offerAmount ? `<p style="color: #2c2c2c; font-size: 18px; font-weight: 600; margin-bottom: 25px;">Offered Amount: ${offerAmount}</p>` : ""}
             </div>
           </div>
           <div style="padding: 0 20px;">
@@ -88,21 +97,19 @@ export async function POST(req: Request): Promise<Response> {
           </div>
         </div>
     `;
+
     await sendMail({
-      to: isFromAdmin ? negotiation.email : process.env.ADMIN_EMAIL!,
+      to: service.userId.email,
       subject: emailSubject,
-      html: emailContent,
+      html: emailContent
     });
 
-    return NextResponse.json(negotiation, { status: 200 });
-  } catch (error: Error | unknown) {
-    console.error("Error adding reply:", error);
+    return NextResponse.json(service, { status: 201 });
+  } catch (error: any) {
+    console.error("POST reply error:", error);
     return NextResponse.json(
-      {
-        error: "Failed to add reply",
-        details: error instanceof Error ? error.message : "Unknown error occurred",
-      },
-      { status: 500 }
+      { error: error.message || "Failed to add reply" },
+      { status: 400 }
     );
   }
 }
