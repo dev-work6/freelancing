@@ -4,24 +4,23 @@ import { getTokenFromHeader, verifyToken } from '@/lib/auth/jwt';
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  
+
   // Define public paths
   const isPublicPath = path === '/login' || path === '/signup' || path === '/';
   const isApiAuthPath = path.startsWith('/api/auth/');
   const isApiPath = path.startsWith('/api/');
   const isAdminPath = path.startsWith('/admin/');
-  
+  const publicApiRoutes = ['/api/services/hourly/'];
   // Get token from Authorization header
   const token = getTokenFromHeader(request.headers.get('authorization') || '');
 
-  // Allow public paths and auth API endpoints
-  if (isPublicPath || isApiAuthPath) {
+  // Allow public paths, auth API endpoints, and public API routes without token
+  if (isPublicPath || isApiAuthPath || publicApiRoutes.includes(path)) {
     return NextResponse.next();
   }
   
   try {
     const decoded = verifyToken(token || '');
-    console.log(decoded);
     if (!decoded) {
       if (isApiPath) {
         return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
