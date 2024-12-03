@@ -5,12 +5,14 @@ interface IReply {
   offerAmount?: number;
   isFromAdmin: boolean;
   createdAt: Date;
-  userId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId;
+  email?: string;
 }
 
 interface IHourlyService extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId?: mongoose.Types.ObjectId;
   name: string;
+  email?: string;
   description: string;
   hourlyRate: number;
   currency: "INR" | "USD" | "EUR";
@@ -50,7 +52,10 @@ const replySchema = new Schema<IReply>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+  },
+  email: {
+    type: String,
+    trim: true,
   },
   createdAt: {
     type: Date,
@@ -62,7 +67,10 @@ const hourlyServiceSchema = new Schema<IHourlyService>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+  },
+  email: {
+    type: String,
+    trim: true,
   },
   name: {
     type: String,
@@ -106,13 +114,7 @@ const hourlyServiceSchema = new Schema<IHourlyService>({
     },
     timezone: {
       type: String,
-      required: [true, "Timezone is required"],
-      validate: {
-        validator: function(v: string) {
-          return Intl.supportedValuesOf('timeZone').includes(v);
-        },
-        message: props => `${props.value} is not a valid timezone!`
-      }
+      required: [true, "Timezone is required"]
     },
     daysAvailable: [{
       type: String,
@@ -143,7 +145,7 @@ const hourlyServiceSchema = new Schema<IHourlyService>({
   timestamps: true
 });
 
-hourlyServiceSchema.pre('save', function(next) {
+hourlyServiceSchema.pre('save', function(this: IHourlyService, next) {
   if (this.availability.endTime <= this.availability.startTime) {
     next(new Error('End time must be after start time'));
   }
@@ -157,6 +159,6 @@ hourlyServiceSchema.index({ userId: 1 });
 hourlyServiceSchema.index({ status: 1 });
 hourlyServiceSchema.index({ skills: 1 });
 
-const HourlyService = mongoose.models.HourlyService || mongoose.model("HourlyService", hourlyServiceSchema);
+const HourlyService = mongoose.models.HourlyService || mongoose.model<IHourlyService>("HourlyService", hourlyServiceSchema);
 
 export default HourlyService;
