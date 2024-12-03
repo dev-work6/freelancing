@@ -3,6 +3,7 @@ import dbConnect from "@/lib/db/db";
 import HourlyService from "@/models/hourlyService";
 import { verifyToken } from "@/lib/auth/jwt";
 import { sendMail } from "@/lib/mail";
+import User from "@/models/user";
 
 interface ReplyData {
   message: string;
@@ -31,15 +32,20 @@ export async function POST(request: Request) {
     }
 
     const service = await HourlyService.findById(serviceId);
-    if (service?.userId) {
-      await service.populate('userId', 'name email');
-    }
 
     if (!service) {
       return NextResponse.json(
         { error: "Hourly service not found" },
         { status: 404 }
       );
+    }
+
+    // Get user data separately if userId exists
+    let userData = null;
+    if (service.userId) {
+      userData = await User.findById(service.userId)
+        .select("name email")
+        .lean();
     }
 
     // Check if user is admin
@@ -112,14 +118,16 @@ export async function POST(request: Request) {
           </div>
         </div>
     `;
-
     await sendMail({
-      to: service.userId?.email || service.email,
+      to: Array.isArray(userData) ? userData[0]?.email : userData?.email || service.email,
       subject: emailSubject,
       html: emailContent
     });
 
-    return NextResponse.json(service, { status: 201 });
+    return NextResponse.json({ 
+      ...service.toObject(), 
+      user: userData 
+    }, { status: 201 });
   } catch (error: unknown) {
     console.error("POST reply error:", error);
     return NextResponse.json(

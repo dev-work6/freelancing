@@ -1,45 +1,68 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db/db";
 import HourlyService from "@/models/hourlyService";
+import User from "@/models/user";
 import { verifyToken } from "@/lib/auth/jwt";
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(request.url);
-    
+
     // Build query filters
     interface QueryFilters {
       status: string;
       skills?: { $in: string[] };
       hourlyRate?: { $gte?: number; $lte?: number };
     }
-    
+
     const filters: QueryFilters = { status: "available" };
-    
-    const skill = searchParams.get('skill');
+
+    const skill = searchParams.get("skill");
     if (skill) {
       filters.skills = { $in: [skill] };
     }
-    
-    const minRate = searchParams.get('minRate');
+
+    const minRate = searchParams.get("minRate");
     if (minRate) {
       filters.hourlyRate = { $gte: parseInt(minRate) };
     }
-    
-    const maxRate = searchParams.get('maxRate');
+
+    const maxRate = searchParams.get("maxRate");
     if (maxRate) {
       filters.hourlyRate = { ...filters.hourlyRate, $lte: parseInt(maxRate) };
     }
 
+    // First get services without population
     const services = await HourlyService.find(filters)
-      .populate('userId', 'name email')
       .sort({ rating: -1, createdAt: -1 })
-      .limit(20);
+      .limit(20)
+      .lean();
 
-    return NextResponse.json(services);
+    // Then populate user data for services that have userId
+    const populatedServices = await Promise.all(
+      services.map(async (service) => {
+        if (service.userId) {
+          try {
+            const user = await User.findById(service.userId)
+              .select("name email")
+              .lean();
+            return { ...service, user };
+          } catch (error) {
+            console.error(
+              `Error populating user for service ${service._id}:`,
+              error
+            );
+            return service;
+          }
+        }
+        return service;
+      })
+    );
+
+    return NextResponse.json(populatedServices);
   } catch (error) {
-    console.error('GET hourly services error:', error);
+    console.error("GET hourly services error:", error);
     return NextResponse.json(
       { error: "Failed to fetch hourly services" },
       { status: 500 }
@@ -49,16 +72,23 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get("authorization");
 
-    const token = authHeader?.split(' ')[1] || '';
+    const token = authHeader?.split(" ")[1] || "";
     const decoded = verifyToken(token || "");
 
     await dbConnect();
     const body = await request.json();
 
     // Validate required fields
-    const requiredFields = ['name', 'description', 'hourlyRate', 'currency', 'minimumHours', 'availability'];
+    const requiredFields = [
+      "name",
+      "description",
+      "hourlyRate",
+      "currency",
+      "minimumHours",
+      "availability",
+    ];
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -70,14 +100,19 @@ export async function POST(request: Request) {
 
     const service = await HourlyService.create({
       ...body,
-      userId: decoded?.userId  
+      userId: decoded?.userId,
     });
 
     return NextResponse.json(service, { status: 201 });
   } catch (error: unknown) {
-    console.error('POST hourly service error:', error);
+    console.error("POST hourly service error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create hourly service" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to create hourly service",
+      },
       { status: 400 }
     );
   }
