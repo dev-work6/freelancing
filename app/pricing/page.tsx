@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -15,6 +16,7 @@ import {
   Mail,
 } from "lucide-react";
 import Link from "next/link";
+import { BookHoursModal } from '@/components/modals/BookHoursModal';
 
 const projectPlans = [
   {
@@ -125,7 +127,23 @@ const individualServices = [
     description: "Email service setup with templates",
   },
 ];
+
+ 
+ 
+
 export default function PricingPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const hourlyService = {
+    _id: "hourly-service",
+    name: "Hourly Services",
+    description: "Flexible development on hourly basis",
+    hourlyRate: 1000,
+    currency: "₹",
+    minimumHours: 1,
+    maximumHours: 8,
+    skills: ["Frontend", "Backend", "Full Stack"],
+  };
+
   return (
     <>
       <div className="container mx-auto px-3 py-6">
@@ -222,10 +240,15 @@ export default function PricingPage() {
 
               <Button
                 variant={plan.buttonVariant}
-                className="w-full text-xs h-8 "
-                asChild
+                className="w-full text-xs h-8"
+                asChild={plan.buttonText !== "Book Hours"}
+                onClick={plan.buttonText === "Book Hours" ? () => setIsModalOpen(true) : undefined}
               >
-                <Link href="/contact">{plan.buttonText}</Link>
+                {plan.buttonText === "Book Hours" ? (
+                  plan.buttonText
+                ) : (
+                  <Link href="/contact">{plan.buttonText}</Link>
+                )}
               </Button>
             </Card>
           ))}
@@ -273,6 +296,12 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
+
+      <BookHoursModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        service={hourlyService}
+      />
     </>
   );
 }
