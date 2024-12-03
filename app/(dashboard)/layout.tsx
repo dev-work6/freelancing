@@ -30,6 +30,10 @@ export default function DashboardLayout({
       label: "Services",
       subLinks: [
         {
+          href: "/admin/negotiations",
+          label: "Negotiations",
+        },
+        {
           href: "/admin/services/hourly-queries",
           label: "Hourly Services",
         },
@@ -45,12 +49,6 @@ export default function DashboardLayout({
       href: "/admin/queries",
       icon: <BarChart3 />,
       label: "Queries",
-      subLinks: [
-        {
-          href: "/admin/negotiations",
-          label: "Negotiations",
-        },
-      ],
     },
     {
       href: "/admin/payments",
