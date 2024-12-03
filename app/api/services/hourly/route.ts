@@ -50,15 +50,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
-    const token = authHeader.split(' ')[1];
-    const decoded = verifyToken(token);
-    if (!decoded || typeof decoded === 'string') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+    const token = authHeader?.split(' ')[1] || '';
+    const decoded = verifyToken(token || "");
 
     await dbConnect();
     const body = await request.json();
@@ -76,7 +70,7 @@ export async function POST(request: Request) {
 
     const service = await HourlyService.create({
       ...body,
-      userId: decoded.userId  
+      userId: decoded?.userId  
     });
 
     return NextResponse.json(service, { status: 201 });

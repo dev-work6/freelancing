@@ -4,22 +4,24 @@ import HourlyService from "@/models/hourlyService";
 import { verifyToken } from "@/lib/auth/jwt";
 import { sendMail } from "@/lib/mail";
 
+interface ReplyData {
+  message: string;
+  offerAmount?: number;
+  isFromAdmin: boolean;
+  createdAt: Date;
+  userId?: string;
+  email?: string;
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = verifyToken(token);
-    if (!decoded || typeof decoded === 'string') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+    const token = authHeader?.split(' ')[1] || "";
+    const decoded = verifyToken(token || "");
 
     await dbConnect();
     const body = await request.json();
-    const { serviceId, message, offerAmount } = body;
+    const { serviceId, message, offerAmount, email } = body;
 
     if (!serviceId || !message) {
       return NextResponse.json(
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const service = await HourlyService.findById(serviceId).populate('userId', 'name email');
+    const service = await HourlyService.findById(serviceId);
+    if (service?.userId) {
+      await service.populate('userId', 'name email');
+    }
 
     if (!service) {
       return NextResponse.json(
@@ -38,13 +43,16 @@ export async function POST(request: Request) {
     }
 
     // Check if user is admin
-    const isAdmin = decoded.role === "admin";
+    const isAdmin = decoded?.role === "admin";
 
     // Prevent duplicate replies in quick succession
     const recentReply = service.replies.find(
-      (reply: { userId: { toString: () => string }; createdAt: Date }) =>
-        reply.userId.toString() === decoded.userId &&
-        new Date().getTime() - new Date(reply.createdAt).getTime() < 60000 // 1 minute
+      (reply: { userId?: { toString: () => string }; email?: string; createdAt: Date }) => {
+        const isFromSameUser = decoded?.userId && reply.userId?.toString() === decoded.userId;
+        const isFromSameEmail = email && reply.email === email;
+        const isWithinTimeLimit = new Date().getTime() - new Date(reply.createdAt).getTime() < 60000; // 1 minute
+        return (isFromSameUser || isFromSameEmail) && isWithinTimeLimit;
+      }
     );
 
     if (recentReply) {
@@ -54,14 +62,21 @@ export async function POST(request: Request) {
       );
     }
 
-    service.replies.push({
+    // Add reply with either userId (if authenticated) or email (if not authenticated)
+    const replyData: ReplyData = {
       message,
       offerAmount,
-      isFromAdmin: isAdmin,
-      userId: decoded.userId,
-      createdAt: new Date(),
-    });
+      isFromAdmin: isAdmin || false,
+      createdAt: new Date()
+    };
 
+    if (decoded?.userId) {
+      replyData.userId = decoded.userId;
+    } else if (email) {
+      replyData.email = email;
+    }
+
+    service.replies.push(replyData);
     await service.save();
 
     // Populate user information before returning
@@ -99,7 +114,7 @@ export async function POST(request: Request) {
     `;
 
     await sendMail({
-      to: service.userId.email,
+      to: service.userId?.email || service.email,
       subject: emailSubject,
       html: emailContent
     });
