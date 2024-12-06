@@ -64,6 +64,7 @@ export default function HourlyQueries() {
       const response = await fetch("/api/services/hourly");
       const data = await response.json();
       setServices(data);
+      console.log(data);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to fetch services";
