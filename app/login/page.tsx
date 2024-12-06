@@ -9,7 +9,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
-import { login } from "@/lib/api";
+import { getCurrentUser, login } from "@/lib/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -24,8 +24,14 @@ export default function Login() {
 
     try {
       await login({ email, password });
-      router.push("/dashboard");
-      router.refresh();
+      const {user} = await getCurrentUser();
+      if (user?.role === "admin") {
+        router.push("/admin/dashboard");
+        router.refresh();
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
