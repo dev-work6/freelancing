@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-interface IReply {
+export interface IReply {
   message: string;
   offerAmount?: number;
   isFromAdmin: boolean;
@@ -9,7 +9,7 @@ interface IReply {
   email?: string;
 }
 
-interface IHourlyService extends Document {
+export interface IHourlyService extends Document {
   userId?: mongoose.Types.ObjectId;
   name: string;
   email?: string;
