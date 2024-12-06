@@ -61,7 +61,7 @@ const AboutPage = () => {
         <section className="mb-20">
           <h2 className="text-2xl font-serif text-gray-800 mb-6">About Me</h2>
           <p className="text-gray-700 leading-relaxed mb-8">
-            I'm Daim Zahoor Kakroo, a software consultant specializing in
+            I&apos;m Daim Zahoor Kakroo, a software consultant specializing in
             enterprise-grade web applications and digital transformation
             solutions. With a focus on scalable architecture and modern
             development practices, I help businesses streamline their operations
@@ -132,9 +132,9 @@ const AboutPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-50 p-12 rounded-lg max-w-3xl mx-auto">
             <div className="text-center">
-              <h2 className="text-2xl font-serif text-gray-900 mb-6">Let's Discuss Your Project</h2>
+              <h2 className="text-2xl font-serif text-gray-900 mb-6">Let&apos;s Discuss Your Project</h2>
               <p className="text-gray-700 mb-8">
-                I'm available for consulting and development projects. Let's explore how we can elevate your business through strategic technical solutions.
+                I&apos;m available for consulting and development projects. Let&apos;s explore how we can elevate your business through strategic technical solutions.
               </p>
               <div className="flex justify-center gap-4">
                 <Button className="bg-gray-900 text-white hover:bg-gray-800 px-8 py-3">
