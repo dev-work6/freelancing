@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db/db";
 import HourlyService from "@/models/hourlyService";
-import User from "@/models/user";
 import { verifyToken } from "@/lib/auth/jwt";
 
 export async function GET(request: Request) {
@@ -33,34 +32,12 @@ export async function GET(request: Request) {
       filters.hourlyRate = { ...filters.hourlyRate, $lte: parseInt(maxRate) };
     }
 
-    // First get services without population
     const services = await HourlyService.find(filters)
+      .populate("userId", "name email")
       .sort({ rating: -1, createdAt: -1 })
-      .limit(20)
-      .lean();
+      .limit(20);
 
-    // Then populate user data for services that have userId
-    const populatedServices = await Promise.all(
-      services.map(async (service) => {
-        if (service.userId) {
-          try {
-            const user = await User.findById(service.userId)
-              .select("name email")
-              .lean();
-            return { ...service, user };
-          } catch (error) {
-            console.error(
-              `Error populating user for service ${service._id}:`,
-              error
-            );
-            return service;
-          }
-        }
-        return service;
-      })
-    );
-
-    return NextResponse.json(populatedServices);
+    return NextResponse.json(services);
   } catch (error) {
     console.error("GET hourly services error:", error);
     return NextResponse.json(
