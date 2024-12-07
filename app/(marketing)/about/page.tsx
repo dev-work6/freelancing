@@ -9,6 +9,10 @@ const AboutPage = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      const beep = new Audio("/sounds/pop.mp3");
+      beep.play().catch((error) => {
+        console.error("Failed to play sound:", error);
+      });
       setShowMiniPopup(true);
     }, 2000); // Show popup after 2 seconds
 
