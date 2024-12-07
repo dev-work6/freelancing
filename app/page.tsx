@@ -34,6 +34,12 @@ export default function Home() {
       thumbnail: "/chat.png",
     },
     {
+      title: "Code Squad",
+      link: "https://codesquad.is-local.org/",
+      thumbnail: "/codesquad.png",
+    },
+
+    {
       title: "Smart Parking",
       link: "https://smart-parking-daim.is-a-fullstack.dev",
       thumbnail: "/smart-parking.png",
