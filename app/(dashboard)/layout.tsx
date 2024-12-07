@@ -64,7 +64,7 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen}>
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} animate={true}>
         <SidebarBody>
           <div className="flex flex-col">
             {sidebarLinks.map((link) => (
