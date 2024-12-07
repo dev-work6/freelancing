@@ -2,7 +2,6 @@
 
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
-import { Spotlight } from "@/components/ui/spotlight";
 import { WavyBackground } from "@/components/ui/wavy-background";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
